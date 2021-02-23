@@ -144,6 +144,8 @@ class ModelsCommand extends Command
             $this->laravel['config']->get('ide-helper.write_model_relation_count_properties', true);
 
         $this->write = $this->write_mixin ? true : $this->write;
+
+        $this->schema = $this->option('schema');
         //If filename is default and Write is not specified, ask what to do
         if (!$this->write && $filename === $this->filename && !$this->option('nowrite')) {
             if (
@@ -207,6 +209,7 @@ class ModelsCommand extends Command
               'noinspection tags',
           ],
           ['ignore', 'I', InputOption::VALUE_OPTIONAL, 'Which models to ignore', ''],
+          ['schema', 'S', InputOption::VALUE_OPTIONAL, 'Would you like to specify a schema to be used', ''],
         ];
     }
 
@@ -426,6 +429,13 @@ class ModelsCommand extends Command
         }
 
         $database = null;
+
+        //Check whether a schema was passed as part of the options, 
+        //if it was, add it to the table name to allow it's fields to be pulled
+        if($this->schema){
+            $table = $this->schema.".".$table;
+        }
+
         if (strpos($table, '.')) {
             [$database, $table] = explode('.', $table);
         }
